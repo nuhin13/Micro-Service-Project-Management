@@ -1,0 +1,12 @@
+FROM maven:3.9.6-eclipse-temurin-21 as builder
+WORKDIR /opt/app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src src
+RUN mvn clean install -DskipTests
+ 
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /opt/app
+COPY --from=builder /opt/app/target/*.jar /opt/app/*.jar
+COPY .env .
+ENTRYPOINT ["java", "-jar", "/opt/app/*.jar" ]
